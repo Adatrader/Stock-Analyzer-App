@@ -1,0 +1,6 @@
+{
+  "appTitle": "Stock Analyzer",
+  "@appTitle": {
+    "description": "TA snapshot of your watchlist"
+  }
+}

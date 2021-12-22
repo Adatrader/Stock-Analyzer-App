@@ -1,0 +1,47 @@
+name: stock_analyzer
+description: TA snapshot of your watchlist
+
+# Prevent accidental publishing to pub.dev.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.12.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  localstorage: ^4.0.0+1
+  http: ^0.13.3
+  getwidget: ^2.0.4
+  material_floating_search_bar: ^0.3.6
+  intl: ^0.17.0
+  extended_image: ^4.0.0
+  flutter_dotenv: ^5.0.2
+  flutter_slidable: ^1.1.0
+  material_design_icons_flutter: ^5.0.6595
+  url_launcher: ^6.0.17
+  reactive_forms: ^10.6.6
+  pie_chart: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Enable generation of localized Strings from arb files.
+  generate: true
+
+  assets:
+    # Add assets from the images directory to the application.
+    - assets/images/
+    - assets/stock_default.png
+    - .env
