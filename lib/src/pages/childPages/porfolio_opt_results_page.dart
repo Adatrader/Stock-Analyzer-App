@@ -69,7 +69,9 @@ class PorfolioOptResultsPageState extends State<PorfolioOptResultsPage> {
     Map<String, double> resulting = Map<String, double>.from(results!.weights);
     Map<String, double> dataMap = {};
     resulting.forEach((key, value) {
-      dataMap[key] = value * 100;
+      if (value != 0) {
+        dataMap[key] = value * 100;
+      }
     });
     chartAllocation = Center(
         child: PieChart(
@@ -82,12 +84,13 @@ class PorfolioOptResultsPageState extends State<PorfolioOptResultsPage> {
       chartType: ChartType.disc,
       ringStrokeWidth: 32,
       // centerText: "HYBRID",
-      legendOptions: const LegendOptions(
-        showLegendsInRow: true,
-        legendPosition: LegendPosition.bottom,
+      legendOptions: LegendOptions(
+        showLegendsInRow: dataMap.length > 8 ? false : true,
+        legendPosition:
+            dataMap.length > 8 ? LegendPosition.left : LegendPosition.bottom,
         showLegends: true,
         legendShape: BoxShape.circle,
-        legendTextStyle: TextStyle(
+        legendTextStyle: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -202,15 +205,15 @@ class PorfolioOptResultsPageState extends State<PorfolioOptResultsPage> {
                             color: Colors.white),
                       ),
                     ])),
-                const SizedBox(
-                  height: 50,
-                ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            const SizedBox(
+                              height: 100,
+                            ),
                             const Text(
                               "Performance",
                               textAlign: TextAlign.center,
@@ -312,23 +315,6 @@ class PorfolioOptResultsPageState extends State<PorfolioOptResultsPage> {
                                 ),
                               ]))
                     ]),
-                // const SizedBox(height: 100),
-                // Column(children: [
-                //   const Center(
-                //     child: Text(
-                //       "Discrete Allocation",
-                //       textAlign: TextAlign.center,
-                //       style: TextStyle(
-                //           fontSize: 25,
-                //           fontWeight: FontWeight.bold,
-                //           color: Colors.white),
-                //     ),
-                //   ),
-                //   const SizedBox(height: 30),
-                //   finished
-                //       ? discreteAllocation
-                //       : const GFLoader(type: GFLoaderType.circle),
-                // ])
               ],
             ),
           ),
