@@ -46,8 +46,6 @@ class BatchFundamentalState extends State<BatchFundamental> {
   void loadFundamental() async {
     stockFundamental = await fmpHelper.getStocksFundamental(stockList.items);
     setState(() {});
-    print(stockFundamental.length);
-    print(stockList.items.length);
     fundamentalsLoaded = true;
   }
 
@@ -71,8 +69,11 @@ class BatchFundamentalState extends State<BatchFundamental> {
   void launchURL() async {
     const url =
         'https://site.financialmodelingprep.com/developer/docs/recommendations-formula';
-    if (await canLaunch(url)) {
+    const urlTwo =
+        'https://site.financialmodelingprep.com/developer/docs/formula';
+    if (await canLaunch(url) && await canLaunch(urlTwo)) {
       await launch(url);
+      await launch(urlTwo);
     } else {
       print("Failed to launch info page.");
     }
@@ -80,37 +81,68 @@ class BatchFundamentalState extends State<BatchFundamental> {
 
   Widget getSubViewCard(String heading, String recommendation, int score) {
     return Padding(
-      padding: const EdgeInsets.only(left: 100, right: 100),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       child: GFCard(
+          padding: EdgeInsets.all(2),
           color: Colors.white70,
-          content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Expanded(
-                  child: Text(heading,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: Colors.black)),
+          content: Row(children: <Widget>[
+            SizedBox(
+              width: 250,
+              child: Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(heading,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.black)),
+              ),
+            ),
+            SizedBox(
+                width: 280,
+                child: Padding(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: RichText(
+                        text: TextSpan(children: [
+                      const TextSpan(
+                          text: "Recommendation:",
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black)),
+                      TextSpan(
+                          text: "  " + recommendation,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: recommendation == "Strong Buy"
+                                  ? Colors.green
+                                  : recommendation == "Buy"
+                                      ? Colors.yellow[700]
+                                      : Colors.red))
+                    ])))),
+            const Padding(
+              padding: EdgeInsets.only(left: 30),
+              child: Text("Total Rating:",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 20),
+              child: IconTheme(
+                data: IconThemeData(
+                  color: score == 5
+                      ? Colors.green
+                      : score == 4
+                          ? Colors.yellow[700]
+                          : Colors.red,
+                  size: 18,
                 ),
-                Expanded(
-                  child: Text(
-                    "Recommendation: " + recommendation,
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
-                  ),
-                ),
-                Expanded(
-                  child: IconTheme(
-                    data: const IconThemeData(
-                      color: Colors.green,
-                      size: 20,
-                    ),
-                    child: RatingDisplay(
-                      value: score,
-                    ),
-                  ),
-                ),
-              ])),
+                child: RatingDisplay(value: score),
+              ),
+            ),
+          ])),
     );
   }
 
@@ -133,6 +165,11 @@ class BatchFundamentalState extends State<BatchFundamental> {
               child: fundamentalsLoaded
                   ? ListView.builder(
                       itemCount: stockFundamental.length + 2,
+                      padding: MediaQuery.of(context).size.width > 900
+                          ? EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.15,
+                              right: MediaQuery.of(context).size.width * 0.15)
+                          : EdgeInsets.only(left: 5, right: 5),
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
                       itemBuilder: (BuildContext context, int index) {
@@ -161,21 +198,16 @@ class BatchFundamentalState extends State<BatchFundamental> {
                           FmpDcf fmpDcf = stock[0] as FmpDcf;
                           FmpStockRating fmpStockRating =
                               stock[1] as FmpStockRating;
-
-                          return Padding(
-                              padding: EdgeInsets.only(
-                                  left:
-                                      MediaQuery.of(context).size.width * 0.05,
-                                  right:
-                                      MediaQuery.of(context).size.width * 0.05),
-                              child: GFAccordion(
-                                  collapsedTitleBackgroundColor:
-                                      const Color(0xFFE0E0E0),
-                                  titleChild: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      GFAvatar(
+                          return GFAccordion(
+                              collapsedTitleBackgroundColor:
+                                  const Color(0xFFE0E0E0),
+                              titleChild: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: GFAvatar(
                                         backgroundColor: Colors.grey[200],
                                         size: GFSize.SMALL,
                                         child: ClipRRect(
@@ -187,130 +219,172 @@ class BatchFundamentalState extends State<BatchFundamental> {
                                           ),
                                         ),
                                       ),
-                                      Expanded(
-                                        child: Text("    " + fmpDcf.symbol,
+                                    ),
+                                    SizedBox(
+                                      width: 110,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 20),
+                                        child: Text(fmpDcf.symbol,
                                             textAlign: TextAlign.start,
                                             style: const TextStyle(
                                                 fontSize: 25,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.black)),
                                       ),
-                                      const Expanded(
-                                        child: Text("Total Score:  ",
+                                    ),
+                                    const SizedBox(
+                                      width: 90,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 20),
+                                        child: Text("Total Rating:",
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.black87)),
                                       ),
-                                      Expanded(
-                                        child: IconTheme(
-                                          data: const IconThemeData(
-                                            color: Colors.green,
-                                            size: 18,
-                                          ),
-                                          child: RatingDisplay(
-                                              value:
-                                                  fmpStockRating.ratingScore),
-                                        ),
+                                    ),
+                                    IconTheme(
+                                      data: IconThemeData(
+                                        color: fmpStockRating.ratingScore == 5
+                                            ? Colors.green
+                                            : fmpStockRating.ratingScore == 4
+                                                ? Colors.yellow[700]
+                                                : Colors.red,
+                                        size: 18,
                                       ),
-                                      Expanded(
-                                        child: Text(
-                                            "Grade: " + fmpStockRating.rating,
-                                            textAlign: TextAlign.left,
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black)),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                            fmpStockRating.ratingRecommendation,
-                                            textAlign: TextAlign.left,
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black)),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                            "Stock Price: \$${fmpDcf.stockPrice}",
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black)),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                            "DCF Value: \$${fmpDcf.dcf.toStringAsFixed(2)}",
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black)),
-                                      ),
-                                      Expanded(
-                                        child: stock[2] > 0
-                                            ? Text(
-                                                "+${stock[2].toStringAsFixed(2)}%",
+                                      child: RatingDisplay(
+                                          value: fmpStockRating.ratingScore),
+                                    ),
+                                    SizedBox(
+                                      width: 70,
+                                      child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 20),
+                                          child: RichText(
+                                              text: TextSpan(children: [
+                                            const TextSpan(
+                                                text: "Grade:",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black)),
+                                            TextSpan(
+                                                text: fmpStockRating.rating,
                                                 style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.green))
-                                            : Text(
-                                                "-${stock[2].toStringAsFixed(2)}%",
-                                                style: const TextStyle(
-                                                    fontSize: 25,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.red)),
-                                      ),
+                                                    color: Colors.black))
+                                          ]))),
+                                    ),
+                                    SizedBox(
+                                        width: 140,
+                                        child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 20),
+                                            child: RichText(
+                                                text: TextSpan(children: [
+                                              const TextSpan(
+                                                  text: "Recommendation:",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.black)),
+                                              TextSpan(
+                                                  text: fmpStockRating
+                                                      .ratingRecommendation,
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: fmpStockRating
+                                                                  .ratingRecommendation ==
+                                                              "Strong Buy"
+                                                          ? Colors.green
+                                                          : fmpStockRating
+                                                                      .ratingRecommendation ==
+                                                                  "Buy"
+                                                              ? Colors
+                                                                  .yellow[700]
+                                                              : Colors.red))
+                                            ])))),
+                                    SizedBox(
+                                      width: 180,
+                                      child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 20),
+                                          child: Text(
+                                              "Stock Price: \$${fmpDcf.stockPrice}    DCF Value: \$${fmpDcf.dcf.toStringAsFixed(2)}",
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black))),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 20),
+                                      child: stock[2] > 0
+                                          ? Text(
+                                              "+${stock[2].toStringAsFixed(2)}%",
+                                              style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green))
+                                          : Text(
+                                              "-${stock[2].toStringAsFixed(2)}%",
+                                              style: const TextStyle(
+                                                  fontSize: 25,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              contentChild: SizedBox(
+                                height: 430,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      getSubViewCard(
+                                          "Discounted Cash Flow: ",
+                                          fmpStockRating.dcfRecommendation,
+                                          fmpStockRating.dcfScore),
+                                      getSubViewCard(
+                                          "Price to Earnings: ",
+                                          fmpStockRating.peRecommendation,
+                                          fmpStockRating.peScore),
+                                      getSubViewCard(
+                                          "Return on Assets: ",
+                                          fmpStockRating.roaRecommendation,
+                                          fmpStockRating.roaScore),
+                                      getSubViewCard(
+                                          "Return on Equity: ",
+                                          fmpStockRating.roeRecommendation,
+                                          fmpStockRating.roeScore),
+                                      getSubViewCard(
+                                          "P/B Ratio: ",
+                                          fmpStockRating.pbRecommendation,
+                                          fmpStockRating.pbScore),
+                                      getSubViewCard(
+                                          "Debt to Equity: ",
+                                          fmpStockRating.deRecommendation,
+                                          fmpStockRating.deScore)
                                     ],
                                   ),
-                                  contentChild: SizedBox(
-                                    height: 400,
-                                    child: GridView.count(
-                                      crossAxisCount: 1,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            getSubViewCard(
-                                                "Discounted Cash Flow",
-                                                fmpStockRating
-                                                    .dcfRecommendation,
-                                                fmpStockRating.dcfScore),
-                                            getSubViewCard(
-                                                "Price to Earnings",
-                                                fmpStockRating.peRecommendation,
-                                                fmpStockRating.peScore),
-                                            getSubViewCard(
-                                                "Return on Assets",
-                                                fmpStockRating
-                                                    .roaRecommendation,
-                                                fmpStockRating.roaScore),
-                                            getSubViewCard(
-                                                "Return on Equity",
-                                                fmpStockRating
-                                                    .roeRecommendation,
-                                                fmpStockRating.roeScore),
-                                            getSubViewCard(
-                                                "P/B Ratio",
-                                                fmpStockRating.pbRecommendation,
-                                                fmpStockRating.pbScore),
-                                            getSubViewCard(
-                                                "Debt to Equity",
-                                                fmpStockRating.deRecommendation,
-                                                fmpStockRating.deScore)
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  contentBackgroundColor: Colors.white,
-                                  collapsedIcon: const Icon(
-                                    MdiIcons.chevronDown,
-                                    color: Colors.black,
-                                    size: 30,
-                                  ),
-                                  expandedIcon: const Icon(MdiIcons.chevronUp,
-                                      color: Colors.black, size: 30)));
+                                ),
+                              ),
+                              contentBackgroundColor: Colors.white,
+                              collapsedIcon: const Icon(
+                                MdiIcons.chevronDown,
+                                color: Colors.black,
+                                size: 30,
+                              ),
+                              expandedIcon: const Icon(MdiIcons.chevronUp,
+                                  color: Colors.black, size: 30));
                         }
                       })
                   : const Center(
