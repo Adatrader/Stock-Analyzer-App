@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:getwidget/getwidget.dart';
@@ -66,24 +67,71 @@ class BatchEmaState extends State<BatchEma> {
                 ? crossedAbove.add(stock)
                 : neutral.add(stock);
         stockCount++;
-        showMessage(stockCount.toString());
+        showMessage(stockCount.toString(), stock.ticker);
       });
     }
     if (crossedBelow.isEmpty) {
-      crossedBelow.add(StockItem(ticker: 'None', companyName: 'Today'));
+      crossedBelow.add(StockItem(ticker: 'None', companyName: ''));
     }
     if (crossedAbove.isEmpty) {
-      crossedAbove.add(StockItem(ticker: 'None', companyName: 'Today'));
+      crossedAbove.add(StockItem(ticker: 'None', companyName: ''));
     }
     setState(() {});
     return true;
   }
 
-  void showMessage(String count) {
+  void showMessage(String count, String ticker) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 1),
-      content: Text("Finished $count of ${stockList.items.length}"),
+      content: Text("Finished $count of ${stockList.items.length}: [$ticker]"),
     ));
+  }
+
+  Widget generateStockCard(String crossoverType, StockItem stock) {
+    return SizedBox(
+        height: 70,
+        child: GFListTile(
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            title: Flexible(
+              child: Text(stock.ticker,
+                  style: TextStyle(
+                      color: crossoverType == Crossover.NEUTRAL
+                          ? Colors.black
+                          : Colors.white)),
+            ),
+            color: crossoverType == Crossover.CROSSOVER_UP
+                ? Colors.green
+                : crossoverType == Crossover.CROSSOVER_DOWN
+                    ? Colors.red
+                    : Colors.white,
+            avatar: Visibility(
+              visible: stock.ticker != "None",
+              child: GFAvatar(
+                backgroundColor: Colors.grey[200],
+                size: GFSize.SMALL,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30.0),
+                  child: ExtendedImage.network(
+                    'https://financialmodelingprep.com/image-stock/${stock.ticker}.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            ),
+            subTitle: Flexible(
+              child: Text(stock.companyName,
+                  style: TextStyle(
+                      color: crossoverType == Crossover.NEUTRAL
+                          ? Colors.black
+                          : Colors.white)),
+            ),
+            onTap: () {
+              if (stock.ticker != "None") {
+                Navigator.of(context).push(FadePageRoute(
+                    builder: (context) =>
+                        StockDetails(stock.ticker, stock.companyName)));
+              }
+            }));
   }
 
   @override
@@ -98,135 +146,81 @@ class BatchEmaState extends State<BatchEma> {
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                   colors: [Colors.purple[900]!, Colors.blue])),
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 100),
           child: GridView.count(
               primary: true,
-              crossAxisCount: MediaQuery.of(context).size.width > 1060 ? 2 : 1,
+              crossAxisCount: MediaQuery.of(context).size.width > 900 ? 2 : 1,
               children: [
-                Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(children: <Widget>[
-                      Text("EMA Crossovers on $now",
-                          style: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 40),
-                      Card(
-                        margin: stockCount != stockList.items.length
-                            ? const EdgeInsets.only(bottom: 50)
-                            : null,
-                        child: const Center(
-                            child: Text("Crossed Above",
-                                style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold))),
-                      ),
-                      stockCount == stockList.items.length
-                          ? ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: crossedAbove.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                StockItem stock = crossedAbove[index];
-
-                                return SizedBox(
-                                    height: 80,
-                                    child: GFListTile(
-                                        titleText: stock.ticker,
-                                        color: Colors.green,
-                                        subTitleText: stock.companyName,
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                              FadePageRoute(
-                                                  builder: (context) =>
-                                                      StockDetails(stock.ticker,
-                                                          stock.companyName)));
-                                        }));
-                              })
-                          : const GFLoader(type: GFLoaderType.circle),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Card(
-                        margin: stockCount != stockList.items.length
-                            ? const EdgeInsets.only(bottom: 50)
-                            : null,
-                        child: const Center(
-                            child: Text("Crossed Below",
-                                style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold))),
-                      ),
-                      stockCount == stockList.items.length
-                          ? ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: crossedBelow.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                StockItem stock = crossedBelow[index];
-
-                                return SizedBox(
-                                    height: 80,
-                                    child: GFListTile(
-                                        titleText: stock.ticker,
-                                        color: Colors.red,
-                                        subTitleText: stock.companyName,
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                              FadePageRoute(
-                                                  builder: (context) =>
-                                                      StockDetails(stock.ticker,
-                                                          stock.companyName)));
-                                        }));
-                              })
-                          : const GFLoader(type: GFLoaderType.circle),
-                    ])),
-                Visibility(
-                    visible: MediaQuery.of(context).size.width > 600,
-                    child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(children: <Widget>[
-                          Card(
-                            margin: stockCount != stockList.items.length
-                                ? const EdgeInsets.only(bottom: 50)
-                                : null,
-                            child: const Center(
-                                child: Text("Neutral",
-                                    style: TextStyle(
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.bold))),
-                          ),
-                          stockCount == stockList.items.length
-                              ? SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.6,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.vertical,
-                                      shrinkWrap: true,
-                                      itemCount: neutral.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        StockItem stock = neutral[index];
-
-                                        return SizedBox(
-                                            height: 80,
-                                            child: GFListTile(
-                                                titleText: stock.ticker,
-                                                color: Colors.white,
-                                                subTitleText: stock.companyName,
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                      FadePageRoute(
-                                                          builder: (context) =>
-                                                              StockDetails(
-                                                                  stock.ticker,
-                                                                  stock
-                                                                      .companyName)));
-                                                }));
-
-                                        // ...crossedBelowCards
-                                      }))
-                              : const GFLoader(type: GFLoaderType.circle),
-                        ])))
+                ListView(children: <Widget>[
+                  Text("EMA Crossovers on $now",
+                      style: const TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 40),
+                  Card(
+                    margin: stockCount != stockList.items.length
+                        ? const EdgeInsets.only(bottom: 50)
+                        : null,
+                    child: const Center(
+                        child: Text("Crossed Above",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold))),
+                  ),
+                  stockCount == stockList.items.length
+                      ? ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: crossedAbove.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            StockItem stock = crossedAbove[index];
+                            return generateStockCard(
+                                Crossover.CROSSOVER_UP, stock);
+                          })
+                      : const GFLoader(type: GFLoaderType.circle),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Card(
+                    margin: stockCount != stockList.items.length
+                        ? const EdgeInsets.only(bottom: 50)
+                        : null,
+                    child: const Center(
+                        child: Text("Crossed Below",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold))),
+                  ),
+                  stockCount == stockList.items.length
+                      ? ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: crossedBelow.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            StockItem stock = crossedBelow[index];
+                            return generateStockCard(
+                                Crossover.CROSSOVER_DOWN, stock);
+                          })
+                      : const GFLoader(type: GFLoaderType.circle),
+                ]),
+                ListView(children: <Widget>[
+                  Card(
+                    margin: stockCount != stockList.items.length
+                        ? const EdgeInsets.only(bottom: 50)
+                        : null,
+                    child: const Center(
+                        child: Text("Neutral",
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold))),
+                  ),
+                  stockCount == stockList.items.length
+                      ? ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: neutral.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            StockItem stock = neutral[index];
+                            return generateStockCard(Crossover.NEUTRAL, stock);
+                          })
+                      : const GFLoader(type: GFLoaderType.circle),
+                ])
               ])),
       drawer: NavigationDrawer(),
     );
