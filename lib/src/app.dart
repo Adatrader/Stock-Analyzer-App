@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:stock_analyzer/src/pages/batch_ema.dart';
 import 'package:stock_analyzer/src/pages/batch_fundametal.dart';
+import 'package:stock_analyzer/src/pages/custom_etf.dart';
 import 'package:stock_analyzer/src/pages/home_page.dart';
 import 'package:stock_analyzer/src/pages/portfolio_optimization.dart';
 import 'settings/settings_controller.dart';
@@ -81,6 +82,8 @@ class MyApp extends StatelessWidget {
                     return const PortfolioOptimization();
                   case BatchFundamental.routeName:
                     return const BatchFundamental();
+                  case CustomETFPage.routeName:
+                    return const CustomETFPage();
                   default:
                     return const HomePage();
                 }

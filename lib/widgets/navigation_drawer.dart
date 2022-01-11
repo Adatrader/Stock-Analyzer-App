@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:stock_analyzer/src/pages/batch_ema.dart';
 import 'package:stock_analyzer/src/pages/batch_fundametal.dart';
+import 'package:stock_analyzer/src/pages/custom_etf.dart';
 import 'package:stock_analyzer/src/pages/home_page.dart';
 import 'package:stock_analyzer/src/pages/portfolio_optimization.dart';
 
@@ -64,6 +65,12 @@ class NavigationDrawerState extends State<NavigationDrawer> {
                   context, BatchFundamental.routeName);
             },
           ),
+          ListTile(
+            title: const Text('Custom ETF Holdings'),
+            onTap: () {
+              Navigator.restorablePushNamed(context, CustomETFPage.routeName);
+            },
+          )
         ],
       ),
     );
