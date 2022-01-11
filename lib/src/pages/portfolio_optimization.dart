@@ -90,6 +90,10 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
+    final double itemWidth = size.width / 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Portfolio Optimization'),
@@ -115,13 +119,18 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
             const SizedBox(
               height: 20,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            GridView.count(
+              childAspectRatio: size.width < 900
+                  ? (itemWidth / (itemHeight / 2.5))
+                  : (itemWidth / itemHeight / 1.4),
+              shrinkWrap: true,
+              crossAxisCount: size.width < 900 ? 1 : 3,
               children: <Widget>[
                 GFCard(
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20))),
                     content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GFRadio(
                           type: GFRadioType.basic,
@@ -152,6 +161,7 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20))),
                     content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GFRadio(
                           type: GFRadioType.basic,
@@ -181,6 +191,7 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20))),
                     content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GFRadio(
                           type: GFRadioType.basic,
@@ -209,17 +220,16 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                  MediaQuery.of(context).size.width * 0.2,
-                  0,
-                  MediaQuery.of(context).size.width * 0.2,
-                  0),
+              padding: size.width < 900
+                  ? EdgeInsets.all(0)
+                  : EdgeInsets.fromLTRB(
+                      size.width * 0.2, 0, size.width * 0.2, 0),
               child: GFCard(
                   shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20))),
                   height: querySelection == 0
-                      ? MediaQuery.of(context).size.height * 0.18
-                      : MediaQuery.of(context).size.height * 0.28,
+                      ? size.height * 0.18
+                      : size.height * 0.3,
                   content: ReactiveForm(
                       formGroup: form,
                       child: Column(
@@ -302,52 +312,52 @@ class PortfolioOptimizationState extends State<PortfolioOptimization> {
             const SizedBox(
               height: 20,
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(50, 10, 50, 30),
-                child: GFMultiSelect(
-                  items: stockList.items.map((stock) => stock.ticker).toList(),
-                  onSelect: (value) {
-                    updateSelected(value);
-                  },
-                  dropdownTitleTileColor: Colors.grey[200],
-                  activeBgColor: Colors.blue[300]!,
-                  color: Colors.grey[200],
-                  activeIcon:
-                      const Icon(Icons.check, size: 20, color: Colors.black),
-                  dropdownTitleTileMargin: const EdgeInsets.only(
-                      top: 22, left: 18, right: 18, bottom: 5),
-                  dropdownTitleTilePadding: const EdgeInsets.all(10),
-                  dropdownUnderlineBorder:
-                      const BorderSide(color: Colors.transparent, width: 2),
-                  dropdownTitleTileBorder:
-                      Border.all(color: Colors.grey[300]!, width: 1),
-                  dropdownTitleTileBorderRadius: BorderRadius.circular(5),
-                  expandedIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.black54,
-                  ),
-                  collapsedIcon: const Icon(
-                    Icons.keyboard_arrow_up,
-                    color: Colors.black54,
-                  ),
-                  submitButton: const Text('OK'),
-                  dropdownTitleTileTextStyle:
-                      const TextStyle(fontSize: 14, color: Colors.black54),
-                  padding: const EdgeInsets.all(6),
-                  margin: const EdgeInsets.all(6),
-                  type: GFCheckboxType.basic,
-                  inactiveBorderColor: Colors.grey[200]!,
+            Padding(
+              padding: size.width < 900
+                  ? const EdgeInsets.only(left: 10, right: 10)
+                  : EdgeInsets.only(
+                      left: size.width * 0.3, right: size.width * 0.3),
+              child: GFMultiSelect(
+                dropdownTitleTileText: "Selected Stocks: ",
+                type: GFCheckboxType.circle,
+                items: stockList.items.map((stock) => stock.ticker).toList(),
+                onSelect: (value) {
+                  updateSelected(value);
+                },
+                dropdownTitleTileColor: Colors.grey[200],
+                activeBgColor: Colors.blue[300]!,
+                color: Colors.grey[200],
+                activeIcon:
+                    const Icon(Icons.check, size: 20, color: Colors.black),
+                dropdownTitleTileMargin: const EdgeInsets.only(
+                    top: 22, left: 18, right: 18, bottom: 5),
+                dropdownTitleTilePadding:
+                    const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                dropdownUnderlineBorder:
+                    const BorderSide(color: Colors.transparent, width: 2),
+                dropdownTitleTileBorder:
+                    Border.all(color: Colors.grey[300]!, width: 1),
+                dropdownTitleTileBorderRadius: BorderRadius.circular(5),
+                expandedIcon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.black54,
                 ),
+                collapsedIcon: const Icon(
+                  Icons.keyboard_arrow_up,
+                  color: Colors.black54,
+                ),
+                submitButton: const Text('OK'),
+                dropdownTitleTileTextStyle:
+                    const TextStyle(fontSize: 14, color: Colors.black54),
+                margin: const EdgeInsets.all(6),
+                inactiveBorderColor: Colors.grey[200]!,
               ),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                  MediaQuery.of(context).size.width * 0.4,
-                  0,
-                  MediaQuery.of(context).size.width * 0.4,
-                  0),
+              padding: size.width < 900
+                  ? EdgeInsets.only(left: 40, right: 40)
+                  : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.4,
+                      0, MediaQuery.of(context).size.width * 0.4, 0),
               child: GFButton(
                 onPressed: () => {
                   Navigator.of(context).push(FadePageRoute(
