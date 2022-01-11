@@ -127,22 +127,27 @@ class _MyHomePageState extends State<HomePage> {
                   ],
                 ),
                 child: SizedBox(
-                    height: 80,
+                    height: 70,
                     child: GFListTile(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 16),
                         titleText: item.ticker,
                         color: Colors.white,
                         avatar: GFAvatar(
                           backgroundColor: Colors.grey[200],
-                          size: GFSize.LARGE,
+                          size: GFSize.SMALL,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(30.0),
                             child: ExtendedImage.network(
                               'https://financialmodelingprep.com/image-stock/${item.ticker}.png',
-                              fit: BoxFit.contain,
+                              fit: BoxFit.fill,
                             ),
                           ),
                         ),
-                        subTitleText: item.companyName,
+                        subTitle: Flexible(
+                          child: Text(item.companyName,
+                              style: TextStyle(color: Colors.black)),
+                        ),
                         onTap: () {
                           // Navigate to the details page. If the user leaves and returns to
                           // the app after it has been killed while running in the
