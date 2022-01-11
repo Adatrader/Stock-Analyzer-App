@@ -5,6 +5,7 @@ class PortfolioOptHelper {
   String sharpeEndpoint = '/max_sharpe';
   String volatilityEndpoint = '/efficient_risk';
   String returnEndpoint = '/target_return';
+  String customEtfEndpoint = '/custom_etf_max_sharpe';
   late PortfolioOptApi portOptApi;
 
   PortfolioOptHelper() {
@@ -15,7 +16,20 @@ class PortfolioOptHelper {
       List<String> tickers, String investment) async {
     var response = await portOptApi.post(
         sharpeEndpoint, "?investment=" + investment, {"tickers": tickers});
-    print(response.Body);
+    // print(response.Body);
+    if (isValid(response.statusCode)) {
+      var bodyResponse = response.Body;
+      if (bodyResponse.isNotEmpty) {
+        return PortfolioOptResults.fromJson(bodyResponse);
+      }
+    }
+    return null;
+  }
+
+  Future<PortfolioOptResults?> getCustomEtfMaxSharpe(String investment) async {
+    var response = await portOptApi
+        .post(customEtfEndpoint, "?investment=" + investment, {});
+    // print(response.Body);
     if (isValid(response.statusCode)) {
       var bodyResponse = response.Body;
       if (bodyResponse.isNotEmpty) {
