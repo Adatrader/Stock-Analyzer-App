@@ -32,39 +32,44 @@ class StockFmpHelper {
   Future<String> getCrossover(String ticker) async {
     List<EmaStock> fiveList = [];
     List<EmaStock> thirteenList = [];
-    // Get 5
-    var firstResponse =
-        await fmpApi.get(baseUrl + ticker + "?period=5&type=ema");
-    if (isValid(firstResponse.statusCode)) {
-      for (var stock in firstResponse.Data) {
-        if (fiveList.length == 2) {
-          break;
+    // FIXME: Temp fix for fmp server error
+    try {
+      // Get 5
+      var firstResponse =
+          await fmpApi.get(baseUrl + ticker + "?period=5&type=ema");
+      if (isValid(firstResponse.statusCode)) {
+        for (var stock in firstResponse.Data) {
+          if (fiveList.length == 2) {
+            break;
+          }
+          fiveList.add(EmaStock.fromJson(stock));
         }
-        fiveList.add(EmaStock.fromJson(stock));
       }
-    }
-    // Get 13
-    var secondResponse =
-        await fmpApi.get(baseUrl + ticker + "?period=13&type=ema");
-    if (isValid(secondResponse.statusCode)) {
-      for (var stock in secondResponse.Data) {
-        if (thirteenList.length == 2) {
-          break;
+      // Get 13
+      var secondResponse =
+          await fmpApi.get(baseUrl + ticker + "?period=13&type=ema");
+      if (isValid(secondResponse.statusCode)) {
+        for (var stock in secondResponse.Data) {
+          if (thirteenList.length == 2) {
+            break;
+          }
+          thirteenList.add(EmaStock.fromJson(stock));
         }
-        thirteenList.add(EmaStock.fromJson(stock));
       }
-    }
-    // Calculate
-    if (fiveList.length == 2 && thirteenList.length == 2) {
-      // Crossed above
-      if (fiveList[1].ema < thirteenList[1].ema &&
-          fiveList[0].ema > thirteenList[0].ema) {
-        return Crossover.CROSSOVER_UP;
-        // Crossed below
-      } else if (fiveList[1].ema > thirteenList[1].ema &&
-          fiveList[0].ema < thirteenList[0].ema) {
-        return Crossover.CROSSOVER_DOWN;
+      // Calculate
+      if (fiveList.length == 2 && thirteenList.length == 2) {
+        // Crossed above
+        if (fiveList[1].ema < thirteenList[1].ema &&
+            fiveList[0].ema > thirteenList[0].ema) {
+          return Crossover.CROSSOVER_UP;
+          // Crossed below
+        } else if (fiveList[1].ema > thirteenList[1].ema &&
+            fiveList[0].ema < thirteenList[0].ema) {
+          return Crossover.CROSSOVER_DOWN;
+        }
       }
+    } catch (e) {
+      return Crossover.NEUTRAL;
     }
     return Crossover.NEUTRAL;
   }
